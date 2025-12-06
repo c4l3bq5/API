@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  bone-api:
+    build: .
+    container_name: bone-analysis-api
+    ports:
+      - "8000:8000"
+    environment:
+      # Configuración GPU
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      
+      # Configuración TensorFlow
+      - TF_FORCE_GPU_ALLOW_GROWTH=true
+      - TF_CPP_MIN_LOG_LEVEL=2
+      
+      # Configuración Grafana (opcional, comenta si no usas)
+      - GRAFANA_ENABLED=true
+      - GRAFANA_REMOTE_WRITE_URL=https://prometheus-prod-40-prod-sa-east-1.grafana.net/api/prom/push
+      - GRAFANA_USERNAME=2742969
+      - GRAFANA_API_KEY=glc_eyJvIjoiMTU2NDAyMiIsIm4iOiJzdGFjay0xNDA5MzY3LWhtLXdyaXRlLXRva2VuMCIsImsiOiI1cTY5Wm44UGozOE45M2tzWVZ1VTE3a1QiLCJtIjp7InIiOiJwcm9kLXNhLWVhc3QtMSJ9fQ==
+    
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    
+    volumes:
+      # Cache de modelos de HuggingFace
+      - huggingface-cache:/root/.cache/huggingface
+    
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+volumes:
+  huggingface-cache:
+    driver: local
