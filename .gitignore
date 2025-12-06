@@ -1,0 +1,21 @@
+# Python (si hay ML)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Docker
+docker-compose.override.yml
+docker-compose.local.yml
+
+docker-compose.yml  
